@@ -1,7 +1,32 @@
 .container {
-  background: rgb(255, 255, 255);
-  max-width: 42em;
-  margin: 20px auto;
+  min-height: 80vh;
+  width: 80vw;
+  display: flex;
+
+  background-color: #f9f9f9;
   padding: 20px;
-  width: 100%;
+  flex-direction: column;
+  .editor {
+    height: 100%;
+    width: 100%;
+    color: #111;
+    outline: none;
+    font-size: 16px;
+    line-height: 1.5;
+    text-align: left;
+    position: relative;
+  }
+  .placeholder {
+    position: absolute;
+    top: 0;
+    left: 10px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #000;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+  }
 }
