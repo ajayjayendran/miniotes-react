@@ -17,4 +17,11 @@
   .formattingIcon:hover {
     background-color: #e8f0fe;
   }
+  .fontFamilyItem {
+    display: flex;
+    align-items: center;
+    color: #111;
+    cursor: pointer;
+    font-weight: 500;
+  }
 }

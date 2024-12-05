@@ -17,7 +17,9 @@ import {
   FaUnderline,
 } from "react-icons/fa";
 import { MdFormatListBulleted, MdFormatListNumbered } from "react-icons/md";
-import { ImRedo2, ImUndo2 } from "react-icons/im";
+import { ImFont, ImRedo2, ImUndo2 } from "react-icons/im";
+import { Button, Dropdown, MenuProps } from "antd";
+import { useState } from "react";
 type ToolbarProps = {
   editor: Editor;
   toggleMark: (
@@ -28,6 +30,10 @@ type ToolbarProps = {
   toggleBlock: (editor: Editor, format: CustomElement["type"]) => void;
   onUndo: () => void;
   onRedo: () => void;
+  setHighlight: (Editor: Editor, highlight: string) => void;
+  setTextColor: (Editor: Editor, color: string) => void;
+  setFontSize: (Editor: Editor, fontSize: number) => void;
+  setFontFamily: (Editor: Editor, fontFamily: string) => void;
 };
 
 const TextFormatting = [
@@ -65,6 +71,8 @@ const ListOptions = [
   { icon: <MdFormatListNumbered color="#111" />, key: "numbered-list" },
 ];
 
+const fonts = ["Arial", "Georgia", "Times New Roman", "Courier New", "Verdana"];
+
 const SlateToolbar: React.FC<ToolbarProps> = ({
   editor,
   toggleMark,
@@ -73,7 +81,12 @@ const SlateToolbar: React.FC<ToolbarProps> = ({
   onRedo,
   onUndo,
 }) => {
-  console.log(editor);
+  const [currentFont, setCurrentFont] = useState("Arial");
+  const fontMenuItems: MenuProps["items"] = fonts.map((font, index) => ({
+    key: index.toString(), // Use the index or a unique identifier
+    label: font,
+  }));
+
   return (
     <div className={styles.toolbar}>
       <div className={styles.iconsRow}>
@@ -87,6 +100,12 @@ const SlateToolbar: React.FC<ToolbarProps> = ({
             color={editor.history.redos.length > 0 ? "#111" : "#AFB2B5"}
           />
         </div>
+        <Dropdown menu={{ items: fontMenuItems }}>
+          <div className={styles.fontFamilyItem}>
+            <ImFont color="#111" />
+            {currentFont}
+          </div>
+        </Dropdown>
         {TextFormatting.map((item) => {
           return (
             <div

@@ -5,6 +5,7 @@ import {
   Transforms,
   createEditor,
   Element as SlateElement,
+  Text,
 } from "slate";
 
 import {
@@ -104,12 +105,23 @@ const SlateEditor = () => {
     children,
     leaf,
   }: RenderLeafProps): JSX.Element => {
+    const style: React.CSSProperties = {
+      fontFamily: leaf.fontFamily || undefined,
+      fontSize: leaf.fontSize ? `${leaf.fontSize}px` : undefined,
+      color: leaf.color || undefined,
+      backgroundColor: leaf.highlight || undefined,
+    };
+
     if (leaf.bold) children = <strong>{children}</strong>;
     if (leaf.italic) children = <em>{children}</em>;
     if (leaf.underline) children = <u>{children}</u>;
     if (leaf.strikethrough) children = <s>{children}</s>;
     if (leaf.superscript) children = <sup>{children}</sup>;
-    return <span {...attributes}>{children}</span>;
+    return (
+      <span style={style} {...attributes}>
+        {children}
+      </span>
+    );
   };
 
   const renderElement = ({
@@ -120,6 +132,7 @@ const SlateEditor = () => {
     const style = {
       textAlign: (element as AlignableElement).textAlign || "left",
     };
+
     switch (element.type) {
       case "bulleted-list":
         return <ul {...attributes}>{children}</ul>;
@@ -175,6 +188,38 @@ const SlateEditor = () => {
     }
   };
 
+  const setFontFamily = (editor: Editor, fontFamily: string) => {
+    Transforms.setNodes(
+      editor,
+      { fontFamily },
+      { match: (n) => Text.isText(n), split: true }
+    );
+  };
+
+  const setFontSize = (editor: Editor, fontSize: number) => {
+    Transforms.setNodes(
+      editor,
+      { fontSize },
+      { match: (n) => Text.isText(n), split: true }
+    );
+  };
+
+  const setTextColor = (editor: Editor, color: string) => {
+    Transforms.setNodes(
+      editor,
+      { color },
+      { match: (n) => Text.isText(n), split: true }
+    );
+  };
+
+  const setHighlight = (editor: Editor, highlight: string) => {
+    Transforms.setNodes(
+      editor,
+      { highlight },
+      { match: (n) => Text.isText(n), split: true }
+    );
+  };
+
   return (
     <div className={styles.container}>
       <Slate
@@ -189,6 +234,10 @@ const SlateEditor = () => {
           toggleBlock={toggleBlock}
           onUndo={handleUndo}
           onRedo={handleRedo}
+          setFontFamily={setFontFamily}
+          setFontSize={setFontSize}
+          setTextColor={setTextColor}
+          setHighlight={setHighlight}
         />
         <Editable
           renderLeaf={renderLeaf}

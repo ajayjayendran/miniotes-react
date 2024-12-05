@@ -9,6 +9,10 @@ export type CustomText = {
   underline?: boolean;
   strikethrough?: boolean;
   superscript?: boolean;
+  fontFamily?: string;
+  fontSize?: number;
+  color?: string;
+  highlight?: string;
 };
 
 type ParagraphElement = {
