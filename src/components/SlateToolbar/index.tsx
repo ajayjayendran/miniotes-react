@@ -100,7 +100,24 @@ const SlateToolbar: React.FC<ToolbarProps> = ({
             color={editor.history.redos.length > 0 ? "#111" : "#AFB2B5"}
           />
         </div>
-        <Dropdown menu={{ items: fontMenuItems }}>
+        <Dropdown
+          menu={{
+            items: fontMenuItems,
+            onChange: (event) => {
+              console.log(event);
+            },
+            onClick: (event) => {
+              const currentItem = fontMenuItems.find(
+                (value) => value?.key === event.key
+              ) as {
+                key: string;
+                label: string;
+              };
+
+              setCurrentFont(currentItem?.label);
+            },
+          }}
+        >
           <div className={styles.fontFamilyItem}>
             <ImFont color="#111" />
             {currentFont}
