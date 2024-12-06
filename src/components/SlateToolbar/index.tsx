@@ -16,10 +16,17 @@ import {
   FaSuperscript,
   FaUnderline,
 } from "react-icons/fa";
-import { MdFormatListBulleted, MdFormatListNumbered } from "react-icons/md";
+import {
+  MdFormatColorText,
+  MdFormatListBulleted,
+  MdFormatListNumbered,
+} from "react-icons/md";
 import { ImFont, ImRedo2, ImUndo2 } from "react-icons/im";
-import { Button, Dropdown, MenuProps } from "antd";
+import { Dropdown, MenuProps, Popover } from "antd";
 import { useState } from "react";
+import { CirclePicker, TwitterPicker } from "react-color";
+import { IoColorFillOutline } from "react-icons/io5";
+
 type ToolbarProps = {
   editor: Editor;
   toggleMark: (
@@ -35,6 +42,50 @@ type ToolbarProps = {
   setFontSize: (Editor: Editor, fontSize: number) => void;
   setFontFamily: (Editor: Editor, fontFamily: string) => void;
 };
+
+const textColors = [
+  "#000000", // Black
+  "#333333", // Dark Gray
+  "#666666", // Gray
+  "#999999", // Light Gray
+  "#CCCCCC", // Silver
+  "#FFFFFF", // White
+  "#FF0000", // Red
+  "#00FF00", // Green
+  "#0000FF", // Blue
+  "#FFFF00", // Yellow
+  "#FFA500", // Orange
+  "#800080", // Purple
+  "#A52A2A", // Brown
+  "#FFC0CB", // Pink
+  "#808000", // Olive
+  "#008080", // Teal
+  "#800000", // Maroon
+  "#000080", // Navy
+  "#DDA0DD", // Plum
+];
+
+const highlightColors = [
+  "#FFFF99", // Light Yellow
+  "#CCFFCC", // Light Green
+  "#99CCFF", // Light Blue
+  "#FFCCCC", // Light Pink
+  "#FFDAB9", // Peach
+  "#E6E6FA", // Lavender
+  "#87CEEB", // Sky Blue
+  "#98FF98", // Mint
+  "#FF7F50", // Coral
+  "#B0E0E6", // Baby Blue
+  "#FFFFE0", // Pale Yellow
+  "#C8A2C8", // Lilac
+  "#F5F5DC", // Beige
+  "#DAA520", // Goldenrod
+  "#FA8072", // Salmon
+  "#DA70D6", // Orchid
+  "#00FFFF", // Cyan
+  "#F08080", // Light Coral
+  "#00FFFF", // Aqua
+];
 
 const TextFormatting = [
   {
@@ -80,8 +131,14 @@ const SlateToolbar: React.FC<ToolbarProps> = ({
   toggleBlock,
   onRedo,
   onUndo,
+  setFontFamily,
+  setTextColor,
+  setHighlight,
 }) => {
   const [currentFont, setCurrentFont] = useState("Arial");
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showHighlightPicker, setShowHighlightPicker] = useState(false);
+
   const fontMenuItems: MenuProps["items"] = fonts.map((font, index) => ({
     key: index.toString(), // Use the index or a unique identifier
     label: font,
@@ -113,7 +170,7 @@ const SlateToolbar: React.FC<ToolbarProps> = ({
                 key: string;
                 label: string;
               };
-
+              setFontFamily(editor, currentItem?.label);
               setCurrentFont(currentItem?.label);
             },
           }}
@@ -139,6 +196,51 @@ const SlateToolbar: React.FC<ToolbarProps> = ({
             </div>
           );
         })}
+        <Popover
+          content={
+            <CirclePicker
+              colors={textColors}
+              onChangeComplete={(color) => {
+                setShowColorPicker(false);
+                setTextColor(editor, color.hex);
+              }}
+            />
+          }
+          open={showColorPicker}
+          trigger="click"
+        >
+          <div>
+            <MdFormatColorText
+              color="#111"
+              onClick={() => {
+                setShowColorPicker(true);
+              }}
+            />
+          </div>
+        </Popover>
+
+        <Popover
+          content={
+            <CirclePicker
+              colors={textColors}
+              onChangeComplete={(color) => {
+                setShowHighlightPicker(false);
+                setHighlight(editor, color.hex);
+              }}
+            />
+          }
+          open={showHighlightPicker}
+          trigger="click"
+        >
+          <div>
+            <IoColorFillOutline
+              color="#111"
+              onClick={() => {
+                setShowHighlightPicker(true);
+              }}
+            />
+          </div>
+        </Popover>
         {Alignments.map((item) => {
           return (
             <div
