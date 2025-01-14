@@ -26,6 +26,7 @@ import { Dropdown, MenuProps, Popover } from "antd";
 import { useState } from "react";
 import { CirclePicker, TwitterPicker } from "react-color";
 import { IoColorFillOutline } from "react-icons/io5";
+import { LuListTodo } from "react-icons/lu";
 
 type ToolbarProps = {
   editor: Editor;
@@ -41,6 +42,7 @@ type ToolbarProps = {
   setTextColor: (Editor: Editor, color: string) => void;
   setFontSize: (Editor: Editor, fontSize: number) => void;
   setFontFamily: (Editor: Editor, fontFamily: string) => void;
+  toggleChecklist: (Editor: Editor) => void;
 };
 
 const textColors = [
@@ -134,6 +136,7 @@ const SlateToolbar: React.FC<ToolbarProps> = ({
   setFontFamily,
   setTextColor,
   setHighlight,
+  toggleChecklist,
 }) => {
   const [currentFont, setCurrentFont] = useState("Arial");
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -147,6 +150,12 @@ const SlateToolbar: React.FC<ToolbarProps> = ({
   return (
     <div className={styles.toolbar}>
       <div className={styles.iconsRow}>
+        <div
+          className={styles.formattingIcon}
+          onClick={() => toggleChecklist(editor)}
+        >
+          <LuListTodo color="#111" />
+        </div>
         <div className={styles.formattingIcon} onClick={onUndo}>
           <ImUndo2
             color={editor.history.undos.length > 0 ? "#111" : "#AFB2B5"}

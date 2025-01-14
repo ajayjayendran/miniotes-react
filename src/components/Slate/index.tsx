@@ -14,29 +14,25 @@ import {
   withReact,
   RenderLeafProps,
   RenderElementProps,
+  ReactEditor,
 } from "slate-react";
 
 import styles from "./Slate.module.css";
-import { withHistory } from "slate-history";
+import { HistoryEditor, withHistory } from "slate-history";
 import { AlignableElement, CustomElement, CustomText } from "./slate.types";
 import SlateToolbar from "../SlateToolbar";
 
 const SlateEditor = () => {
-  const editor = useMemo(() => withReact(withHistory(createEditor())), []);
-
+  const editor = useMemo(
+    () => withHistory(withReact(createEditor() as ReactEditor & HistoryEditor)),
+    []
+  );
   const [value, setValue] = useState<Descendant[]>([
     {
       type: "paragraph",
       children: [{ text: "" }],
     },
   ]);
-
-  const initialValue: Descendant[] = [
-    {
-      type: "paragraph",
-      children: [{ text: "" }],
-    },
-  ];
 
   const toggleMark = (
     editor: Editor,
@@ -59,7 +55,6 @@ const SlateEditor = () => {
   };
 
   const toggleBlock = (editor: Editor, format: CustomElement["type"]): void => {
-    debugger;
     const isActive = isBlockActive(editor, format);
     const isList = format === "bulleted-list" || format === "numbered-list";
 
@@ -84,7 +79,9 @@ const SlateEditor = () => {
     format: CustomElement["type"]
   ): boolean => {
     const [match] = Editor.nodes(editor, {
-      match: (n) => SlateElement.isElement(n) && n.type === format,
+      match: (n) => {
+        return SlateElement.isElement(n) && n.type === format;
+      },
     });
     return !!match;
   };
@@ -132,7 +129,7 @@ const SlateEditor = () => {
     const style = {
       textAlign: (element as AlignableElement).textAlign || "left",
     };
-
+    console.log(element);
     switch (element.type) {
       case "bulleted-list":
         return <ul {...attributes}>{children}</ul>;
@@ -140,6 +137,29 @@ const SlateEditor = () => {
         return <ol {...attributes}>{children}</ol>;
       case "list-item":
         return <li {...attributes}>{children}</li>;
+      case "checklist-item":
+        return (
+          <div
+            {...attributes}
+            style={{ display: "flex", alignItems: "center" }}
+          >
+            <input
+              type="checkbox"
+              checked={element.checked}
+              onChange={(e) => {
+                const path = ReactEditor.findPath(editor, element);
+                Transforms.setNodes(
+                  editor,
+                  { checked: e.target.checked },
+                  { at: path }
+                );
+              }}
+            />
+            <span contentEditable={false} style={{ marginLeft: "8px" }}>
+              {children}
+            </span>
+          </div>
+        );
       default:
         return (
           <p style={style} {...attributes}>
@@ -172,6 +192,30 @@ const SlateEditor = () => {
     if (event.ctrlKey && event.key === "n") {
       event.preventDefault();
       toggleBlock(editor, "numbered-list");
+    }
+    if (event.key === "Enter" && !event.shiftKey) {
+      const [match] = Editor.nodes(editor, {
+        match: (n) => SlateElement.isElement(n) && n.type === "checklist-item",
+      });
+
+      if (match) {
+        event.preventDefault();
+        Transforms.insertNodes(editor, {
+          type: "checklist-item",
+          checked: false,
+          children: [{ text: "" }],
+        });
+      }
+    }
+    if (event.key === "Enter" && event.shiftKey) {
+      const [match] = Editor.nodes(editor, {
+        match: (n) => SlateElement.isElement(n) && n.type === "checklist-item",
+      });
+
+      if (match) {
+        event.preventDefault();
+        Transforms.setNodes(editor, { type: "paragraph" });
+      }
     }
     // Add other shortcuts
   };
@@ -220,6 +264,29 @@ const SlateEditor = () => {
     );
   };
 
+  const toggleChecklist = (editor: Editor) => {
+    debugger;
+    const [match] = Editor.nodes(editor, {
+      match: (n) => SlateElement.isElement(n) && n.type === "checklist-item",
+    });
+
+    if (match) {
+      // Change back to a paragraph
+      Transforms.setNodes(editor, { type: "paragraph" });
+    } else {
+      // Convert to a checklist-item
+      Transforms.setNodes(
+        editor,
+        {
+          type: "checklist-item",
+          checked: false,
+          children: [{ text: "ajay" }],
+        },
+        { match: (n) => Editor.isBlock(editor, n as CustomElement) }
+      );
+    }
+  };
+
   return (
     <div className={styles.container}>
       <Slate
@@ -238,6 +305,7 @@ const SlateEditor = () => {
           setFontSize={setFontSize}
           setTextColor={setTextColor}
           setHighlight={setHighlight}
+          toggleChecklist={toggleChecklist}
         />
         <Editable
           renderLeaf={renderLeaf}
