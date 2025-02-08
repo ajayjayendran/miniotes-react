@@ -36,7 +36,7 @@ export type AlignableElement = {
   children: CustomText[];
 };
 
-type ChecklistItemElement = {
+export type ChecklistItemElement = {
   type: "checklist-item";
   checked: boolean;
   children: CustomText[];
@@ -49,9 +49,11 @@ export type CustomElement =
   | AlignableElement
   | ChecklistItemElement;
 
+export type CustomEditor = BaseEditor & ReactEditor & HistoryEditor;
+
 declare module "slate" {
   interface CustomTypes {
-    Editor: BaseEditor & ReactEditor & HistoryEditor;
+    Editor: CustomEditor;
     Element: CustomElement;
     Text: CustomText;
   }
